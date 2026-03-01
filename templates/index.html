@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature Verification System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Signature Verification</h1>
+            <p>Upload a signature image to verify authenticity</p>
+        </header>
+
+        <div class="upload-section">
+            <div id="dropZone" class="drop-zone">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                </svg>
+                <p class="drop-text">Drag & drop image here</p>
+                <p class="or-text">or</p>
+                <button class="browse-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                <input type="file" id="fileInput" accept="image/*" hidden>
+            </div>
+
+            <div id="preview" class="preview hidden">
+                <img id="previewImage" alt="Preview">
+                <button class="remove-btn" onclick="removeImage()">×</button>
+            </div>
+        </div>
+
+        <button id="verifyBtn" class="verify-btn hidden" onclick="verifyImage()">Verify Signature</button>
+
+        <div id="result" class="result hidden">
+            <div class="result-content">
+                <div id="resultIcon" class="result-icon"></div>
+                <h2 id="resultTitle"></h2>
+                <p id="resultMessage"></p>
+            </div>
+        </div>
+
+        <div id="loader" class="loader hidden">
+            <div class="spinner"></div>
+            <p>Analyzing signature...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
