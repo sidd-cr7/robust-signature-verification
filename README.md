@@ -59,6 +59,7 @@ Classifies signatures as genuine or forged
 
 Trained on real and forged signature datasets
 
+
 2. Adversarial Attack Generation
 
 FGSM (Fast Gradient Sign Method)
@@ -66,6 +67,7 @@ FGSM (Fast Gradient Sign Method)
 Generates imperceptible noise to fool the model
 
 Demonstrates the vulnerability of baseline models
+
 
 3. Adversarial Defense
 
@@ -75,13 +77,17 @@ Prevents adversarial exploitation
 
 Improves system robustness
 
-Model Performance
+---
+
+# Model Performance
+
 Component	Performance
 Signature Forgery Detector	~84% accuracy
 Adversarial Detector	~100% accuracy
 
+---
 
-Tech Stack
+# Tech Stack
 
 Python
 
