@@ -107,7 +107,8 @@ PIL / OpenCV
 
 ---
 
-Project Structure
+# Project Structure
+
 dl project/
 │
 ├── dataset/                  # Real and forged signature dataset
