@@ -29,7 +29,9 @@ If Safe → Signature Forgery Detection
      ↓
 Final Decision
 
-Features
+---
+
+# Features
 
 Genuine vs forged signature classification
 
