@@ -107,7 +107,7 @@ PIL / OpenCV
 
 ---
 
-# Project Structure
+Project Structure
 dl project/
 │
 ├── dataset/                  # Real and forged signature dataset
@@ -133,8 +133,9 @@ cd robust-signature-verification
 Install dependencies
 pip install torch torchvision foolbox opencv-python matplotlib pillow
 
+---
 
-Usage
+# Usage
 Train signature forgery model
 py train.py
 Generate adversarial samples
@@ -147,7 +148,10 @@ Output
 ✔ Genuine Signature
 ❌ Forged Signature
 ⚠ Adversarial Manipulation Detected
-🎯 Applications
+
+---
+
+# Applications
 
 Banking signature verification
 
@@ -171,5 +175,7 @@ Explainable AI visualization
 
 Multi-modal document verification
 
-Author
+---
+
+# Author
 Deep Learning Project — Robust Signature Authentication with Adversarial Defence.
