@@ -1,4 +1,4 @@
-## Robust Signature Verification System
+# Robust Signature Verification System
 
 A deep learning–based document authentication system that verifies genuine vs forged signatures and detects adversarial manipulation attempts to ensure secure verification.
 
@@ -47,7 +47,10 @@ Real-world testing support
 
 End-to-end AI authentication workflow
 
-Methodology
+---
+
+# Methodology
+
 1. Signature Forgery Detection
 
 Pretrained ResNet18 (transfer learning)
