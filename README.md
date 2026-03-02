@@ -4,7 +4,9 @@ A deep learning–based document authentication system that verifies genuine vs 
 
 This project implements a robust AI pipeline using transfer learning (ResNet18), adversarial attack generation, and adversarial detection to build a security-focused signature verification framework.
 
-Overview
+---
+
+# Overview
 
 Traditional signature verification systems can be vulnerable to sophisticated image manipulations.
 This system improves reliability by:
