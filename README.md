@@ -82,7 +82,9 @@ Improves system robustness
 # Model Performance
 
 Component	Performance
+
 Signature Forgery Detector	~84% accuracy
+
 Adversarial Detector	~100% accuracy
 
 ---
@@ -103,7 +105,9 @@ NumPy
 
 PIL / OpenCV
 
-Project Structure
+---
+
+# Project Structure
 dl project/
 │
 ├── dataset/                  # Real and forged signature dataset
@@ -120,8 +124,9 @@ dl project/
 ├── sealguard_resnet.pth      # Trained forgery model
 ├── adv_detector.pth          # Trained adversarial detector
 
+---
 
-Installation
+# Installation
 Clone repository
 git clone <repository-url>
 cd robust-signature-verification
