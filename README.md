@@ -1,6 +1,6 @@
 # Robust Signature Verification System
 
-A deep learning–based document authentication system that verifies genuine vs forged signatures and detects adversarial manipulation attempts to ensure secure verification.
+A deep learning–based document authentication system that verifies genuine vs forged signatures and detects adversarial manipulation attempts to ensure secure verification
 
 This project implements a robust AI pipeline using transfer learning (ResNet18), adversarial attack generation, and adversarial detection to build a security-focused signature verification framework.
 
