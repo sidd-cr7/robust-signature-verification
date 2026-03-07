@@ -179,4 +179,4 @@ Multi-modal document verification
 ---
 
 # Author
-Deep Learning Project — Robust Signature Authentication with Adversarial Defence
+Deep Learning Project — Robust Signature Authentication with Adversarial Defence.
