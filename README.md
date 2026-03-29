@@ -8,7 +8,7 @@ This project implements a robust AI pipeline using transfer learning (ResNet18),
 
 # Overview
 
-Traditional signature verification systems can be vulnerable to sophisticated image manipulations.
+Traditional signature verification systems can be vulnerable to sophisticated image manipulations
 This system improves reliability by:
 
 Detecting forged signatures
