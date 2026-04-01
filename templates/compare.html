@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Signatures — AI Signature Verification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="nav-brand">AI Signature <span>Verification</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/compare" class="nav-link active">Compare</a>
+            <a href="/detect" class="nav-link">Detect</a>
+        </div>
+        <a href="/compare" class="nav-cta">Get Started</a>
+    </nav>
+
+    <main class="page-main">
+        <div class="page-header">
+            <h1>Compare <span>Signatures</span></h1>
+            <p>Upload two signatures to check if they match using our Siamese Neural Network.</p>
+        </div>
+
+        <div class="glass-card">
+            <div class="siamese-grid">
+                <div class="upload-box">
+                    <p class="upload-label">Signature 1</p>
+                    <div class="drop-zone" id="dropZone1"
+                         ondragover="onDrag(event,this)" ondragleave="offDrag(this)" ondrop="onDrop(event,1)"
+                         onclick="document.getElementById('fileInput1').click()">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                        </svg>
+                        <p class="drop-text">Drag & drop or click</p>
+                        <input type="file" id="fileInput1" accept="image/*" hidden onchange="handleFile(this.files[0],1)">
+                    </div>
+                    <div id="preview1" class="preview hidden">
+                        <img id="previewImage1" alt="Signature 1">
+                        <button class="remove-btn" onclick="removeSiamese(1)">×</button>
+                    </div>
+                </div>
+                <div class="upload-box">
+                    <p class="upload-label">Signature 2</p>
+                    <div class="drop-zone" id="dropZone2"
+                         ondragover="onDrag(event,this)" ondragleave="offDrag(this)" ondrop="onDrop(event,2)"
+                         onclick="document.getElementById('fileInput2').click()">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                        </svg>
+                        <p class="drop-text">Drag & drop or click</p>
+                        <input type="file" id="fileInput2" accept="image/*" hidden onchange="handleFile(this.files[0],2)">
+                    </div>
+                    <div id="preview2" class="preview hidden">
+                        <img id="previewImage2" alt="Signature 2">
+                        <button class="remove-btn" onclick="removeSiamese(2)">×</button>
+                    </div>
+                </div>
+            </div>
+
+            <button id="siameseBtn" class="verify-btn hidden" onclick="verifySiamese()">Compare Signatures</button>
+
+            <div id="loader" class="loader hidden">
+                <div class="loading">
+                    <svg viewBox="0 0 187.3 93.7" height="70px" width="130px" class="svgbox">
+                        <defs>
+                            <linearGradient y2="0%" x2="100%" y1="0%" x1="0%" id="lgrad">
+                                <stop stop-color="#7C3AED" offset="0%"></stop>
+                                <stop stop-color="#2563EB" offset="100%"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path stroke="url(#lgrad)" d="M93.9,46.4c9.3,9.5,13.8,17.9,23.5,17.9s17.5-7.8,17.5-17.5s-7.8-17.6-17.5-17.5c-9.7,0.1-13.3,7.2-22.1,17.1c-8.9,8.8-15.7,17.9-25.4,17.9s-17.5-7.8-17.5-17.5s7.8-17.5,17.5-17.5S86.2,38.6,93.9,46.4z"></path>
+                    </svg>
+                </div>
+                <p>Analyzing signatures...</p>
+            </div>
+
+            <div id="result" class="result hidden">
+                <div id="resultBadge" class="result-badge"></div>
+                <div id="resultIcon" class="result-icon"></div>
+                <h2 id="resultTitle"></h2>
+                <p id="resultExplanation"></p>
+                <div id="scoreSection" class="score-section hidden">
+                    <div class="score-row">
+                        <span class="score-label">Similarity Score</span>
+                        <span id="scoreValue" class="score-value"></span>
+                    </div>
+                    <div class="confidence-bar-bg">
+                        <div id="confidenceBar" class="confidence-bar"></div>
+                    </div>
+                    <div class="bar-labels"><span>Low</span><span>Confidence Level</span><span>High</span></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

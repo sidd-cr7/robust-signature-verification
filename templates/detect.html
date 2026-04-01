@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detect Forgery — AI Signature Verification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="nav-brand">AI Signature <span>Verification</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/compare" class="nav-link">Compare</a>
+            <a href="/detect" class="nav-link active">Detect</a>
+        </div>
+        <a href="/compare" class="nav-cta">Get Started</a>
+    </nav>
+
+    <main class="page-main">
+        <div class="page-header">
+            <h1>Detect <span>Forgery</span></h1>
+            <p>Upload a single signature to detect forgery or adversarial manipulation.</p>
+        </div>
+
+        <div class="glass-card" style="max-width: 520px;">
+            <div id="dropZone" class="drop-zone"
+                 ondragover="onDrag(event,this)" ondragleave="offDrag(this)" ondrop="onDrop(event,'single')">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                </svg>
+                <p class="drop-text">Drag & drop your signature here</p>
+                <p class="or-text">or</p>
+                <button class="browse-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                <input type="file" id="fileInput" accept="image/*" hidden onchange="handleFile(this.files[0],'single')">
+            </div>
+
+            <div id="preview" class="preview hidden">
+                <img id="previewImage" alt="Preview">
+                <button class="remove-btn" onclick="removeImage()">×</button>
+            </div>
+
+            <button id="verifyBtn" class="verify-btn hidden" onclick="verifyImage()">Analyze Signature</button>
+
+            <div id="loader" class="loader hidden">
+                <div class="loading">
+                    <svg viewBox="0 0 187.3 93.7" height="70px" width="130px" class="svgbox">
+                        <defs>
+                            <linearGradient y2="0%" x2="100%" y1="0%" x1="0%" id="lgrad2">
+                                <stop stop-color="#7C3AED" offset="0%"></stop>
+                                <stop stop-color="#2563EB" offset="100%"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path stroke="url(#lgrad2)" d="M93.9,46.4c9.3,9.5,13.8,17.9,23.5,17.9s17.5-7.8,17.5-17.5s-7.8-17.6-17.5-17.5c-9.7,0.1-13.3,7.2-22.1,17.1c-8.9,8.8-15.7,17.9-25.4,17.9s-17.5-7.8-17.5-17.5s7.8-17.5,17.5-17.5S86.2,38.6,93.9,46.4z"></path>
+                    </svg>
+                </div>
+                <p>Analyzing signature...</p>
+            </div>
+
+            <div id="result" class="result hidden">
+                <div id="resultBadge" class="result-badge"></div>
+                <div id="resultIcon" class="result-icon"></div>
+                <h2 id="resultTitle"></h2>
+                <p id="resultExplanation"></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

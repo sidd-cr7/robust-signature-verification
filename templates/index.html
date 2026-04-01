@@ -3,48 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signature Verification System</title>
+    <title>AI Signature Verification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Signature Verification</h1>
-            <p>Upload a signature image to verify authenticity</p>
-        </header>
 
-        <div class="upload-section">
-            <div id="dropZone" class="drop-zone">
-                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
-                </svg>
-                <p class="drop-text">Drag & drop image here</p>
-                <p class="or-text">or</p>
-                <button class="browse-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
-                <input type="file" id="fileInput" accept="image/*" hidden>
-            </div>
-
-            <div id="preview" class="preview hidden">
-                <img id="previewImage" alt="Preview">
-                <button class="remove-btn" onclick="removeImage()">×</button>
-            </div>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="nav-brand">AI Signature <span>Verification</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link {% if page == 'home' %}active{% endif %}">Home</a>
+            <a href="/compare" class="nav-link {% if page == 'compare' %}active{% endif %}">Compare</a>
+            <a href="/detect" class="nav-link {% if page == 'detect' %}active{% endif %}">Detect</a>
         </div>
+        <a href="/compare" class="nav-cta">Get Started</a>
+    </nav>
 
-        <button id="verifyBtn" class="verify-btn hidden" onclick="verifyImage()">Verify Signature</button>
-
-        <div id="result" class="result hidden">
-            <div class="result-content">
-                <div id="resultIcon" class="result-icon"></div>
-                <h2 id="resultTitle"></h2>
-                <p id="resultMessage"></p>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-glow glow-1"></div>
+        <div class="hero-glow glow-2"></div>
+        <div class="hero-glow glow-3"></div>
+        <div class="hero-content">
+            <div class="hero-badge">Powered by Siamese Neural Networks</div>
+            <h1>AI Signature<br><span>Verification</span></h1>
+            <p class="hero-tagline">Build the Future Today</p>
+            <p class="hero-desc">Verify signatures using deep learning in seconds.<br>Secure, intelligent, and instant.</p>
+            <div class="hero-btns">
+                <a href="/compare" class="btn-primary">Get Started</a>
+                <a href="/detect" class="btn-ghost">Try Demo</a>
             </div>
         </div>
-
-        <div id="loader" class="loader hidden">
-            <div class="spinner"></div>
-            <p>Analyzing signature...</p>
+        <div class="hero-wave">
+            <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+                <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#0f0f1a"/>
+            </svg>
         </div>
-    </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Deep Analysis</h3>
+                <p>ResNet-18 backbone extracts rich feature embeddings from every signature.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Instant Results</h3>
+                <p>Get Genuine, Forged, or Uncertain verdict in under a second.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Adversarial Detection</h3>
+                <p>Detects manipulated images designed to fool standard classifiers.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-section">
+        <h2 class="section-title">How It Works</h2>
+        <div class="steps-grid">
+            <div class="step-card"><div class="step-num">1</div><h3>Upload</h3><p>Upload one or two signature images.</p></div>
+            <div class="step-card"><div class="step-num">2</div><h3>Extract</h3><p>Model extracts deep feature embeddings.</p></div>
+            <div class="step-card"><div class="step-num">3</div><h3>Compare</h3><p>Euclidean distance is computed between embeddings.</p></div>
+            <div class="step-card"><div class="step-num">4</div><h3>Result</h3><p>Receive a clear Genuine / Forged / Uncertain verdict.</p></div>
+        </div>
+    </section>
+
+    <!-- About -->
+    <section class="about-section">
+        <div class="about-card">
+            <h2>About the Model</h2>
+            <p>This system uses a <strong>Siamese Neural Network</strong> built on ResNet-18. The network learns feature embeddings and computes <strong>Euclidean distance</strong> to determine similarity. A lower distance indicates matching signatures, while a higher distance suggests forgery.</p>
+            <div class="about-tags">
+                <span>PyTorch</span><span>ResNet-18</span><span>Contrastive Loss</span><span>Siamese Network</span>
+            </div>
+        </div>
+    </section>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
