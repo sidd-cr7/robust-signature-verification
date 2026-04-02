@@ -21,6 +21,7 @@
         <a href="/compare" class="nav-cta">Get Started</a>
     </nav>
 
+    <div id="page-content">
     <!-- Hero -->
     <section class="hero">
         <div class="hero-glow glow-1"></div>
@@ -79,13 +80,18 @@
     <section class="about-section">
         <div class="about-card">
             <h2>About the Model</h2>
-            <p>This system uses a <strong>Siamese Neural Network</strong> built on ResNet-18. The network learns feature embeddings and computes <strong>Euclidean distance</strong> to determine similarity. A lower distance indicates matching signatures, while a higher distance suggests forgery.</p>
+            <p>This system uses a <strong class="grad">Siamese Neural Network</strong> built on ResNet-18. The network learns feature embeddings and computes <strong class="grad">Euclidean distance</strong> to determine similarity. A lower distance indicates matching signatures, while a higher distance suggests forgery.</p>
             <div class="about-tags">
                 <span>PyTorch</span><span>ResNet-18</span><span>Contrastive Loss</span><span>Siamese Network</span>
             </div>
         </div>
     </section>
 
+    </div><!-- end #page-content -->
+    <canvas id="aurora-canvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="{{ url_for('static', filename='colorbends.js') }}"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>initColorBends(document.getElementById('aurora-canvas'));</script>
 </body>
 </html>

@@ -5,7 +5,7 @@
     --bg:        #0f0f1a;
     --card:      rgba(255,255,255,0.05);
     --text:      #F9FAFB;
-    --muted:     #9CA3AF;
+    --muted:     #C4C9D4;
     --border:    rgba(255,255,255,0.1);
     --genuine:   #22C55E;
     --forged:    #EF4444;
@@ -475,6 +475,63 @@ html, body { background-color: #0f0f1a; }
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
+}
+
+#aurora-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+body > *:not(#aurora-canvas) { position: relative; z-index: 1; }
+
+#page-content {
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+#page-content.loaded {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.nav-brand span,
+.hero-content h1 span,
+.page-header h1 span {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-tagline,
+.hero-desc,
+.hero-badge,
+.feature-card p,
+.step-card p,
+.about-card p,
+.page-header p,
+.upload-label,
+.drop-text,
+.or-text,
+.loader p,
+.result p,
+.bar-labels,
+.score-label {
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.grad {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
 }
 
 .hidden { display: none; }

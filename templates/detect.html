@@ -21,6 +21,7 @@
         <a href="/compare" class="nav-cta">Get Started</a>
     </nav>
 
+    <div id="page-content">
     <main class="page-main">
         <div class="page-header">
             <h1>Detect <span>Forgery</span></h1>
@@ -70,6 +71,13 @@
         </div>
     </main>
 
+    </main>
+    </div><!-- end #page-content -->
+
+    <canvas id="aurora-canvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="{{ url_for('static', filename='colorbends.js') }}"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>initColorBends(document.getElementById('aurora-canvas'));</script>
 </body>
 </html>

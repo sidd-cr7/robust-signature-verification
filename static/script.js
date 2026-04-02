@@ -1,3 +1,19 @@
+// ── Page transitions ──────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const content = document.getElementById('page-content');
+    if (content) requestAnimationFrame(() => content.classList.add('loaded'));
+
+    document.querySelectorAll('.nav-link, .nav-cta, .btn-primary, .btn-ghost').forEach(link => {
+        link.addEventListener('click', e => {
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#')) return;
+            e.preventDefault();
+            if (content) content.classList.remove('loaded');
+            setTimeout(() => window.location.href = href, 350);
+        });
+    });
+});
+
 // ── Drag & drop helpers ────────────────────────────────────
 function onDrag(e, el) { e.preventDefault(); el.classList.add('drag-over'); }
 function offDrag(el)   { el.classList.remove('drag-over'); }
