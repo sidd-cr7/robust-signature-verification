@@ -659,16 +659,16 @@ body > *:not(#aurora-canvas) { position: relative; z-index: 1; }
 .hidden { display: none; }
 
 /* ── Analytics ───────────────────────────────────────────── */
-.analytics-cards {
+.analytics-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     width: 100%;
     max-width: 900px;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
 }
 
-.analytics-card {
+.stat-card {
     background: rgba(255,255,255,0.05);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -676,12 +676,12 @@ body > *:not(#aurora-canvas) { position: relative; z-index: 1; }
     text-align: center;
     transition: transform 0.2s;
 }
-.analytics-card:hover { transform: translateY(-3px); }
-.analytics-card.genuine   { border-color: var(--genuine); }
-.analytics-card.forged    { border-color: var(--forged); }
-.analytics-card.uncertain { border-color: var(--uncertain); }
+.stat-card:hover { transform: translateY(-3px); }
+.stat-card.genuine   { border-color: var(--genuine); }
+.stat-card.forged    { border-color: var(--forged); }
+.stat-card.uncertain { border-color: var(--uncertain); }
 
-.ac-label {
+.stat-label {
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -690,14 +690,14 @@ body > *:not(#aurora-canvas) { position: relative; z-index: 1; }
     margin-bottom: 10px;
 }
 
-.ac-value {
+.stat-value {
     font-size: 36px;
     font-weight: 800;
     color: var(--text);
 }
-.analytics-card.genuine   .ac-value { color: var(--genuine); }
-.analytics-card.forged    .ac-value { color: var(--forged); }
-.analytics-card.uncertain .ac-value { color: var(--uncertain); }
+.stat-card.genuine   .stat-value { color: var(--genuine); }
+.stat-card.forged    .stat-value { color: var(--forged); }
+.stat-card.uncertain .stat-value { color: var(--uncertain); }
 
 .chart-card {
     background: rgba(255,255,255,0.05);
@@ -716,11 +716,11 @@ body > *:not(#aurora-canvas) { position: relative; z-index: 1; }
     margin-bottom: 20px;
 }
 
-.chart-container {
+.chart-wrap {
     position: relative;
     height: 260px;
 }
 
 @media (max-width: 768px) {
-    .analytics-cards { grid-template-columns: repeat(2, 1fr); }
+    .analytics-grid { grid-template-columns: repeat(2, 1fr); }
 }

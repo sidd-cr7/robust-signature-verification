@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics — AI Signature Verification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="nav-brand">AI Signature <span>Verification</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/compare" class="nav-link">Compare</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/history" class="nav-link">History</a>
+            <a href="/analytics" class="nav-link active">Analytics</a>
+        </div>
+        <a href="/compare" class="nav-cta">Get Started</a>
+    </nav>
+
+    <div id="page-content">
+    <main class="page-main">
+        <div class="page-header">
+            <h1>Analytics <span>Dashboard</span></h1>
+            <p>Insights and statistics from your verification history.</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="analytics-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Checks</div>
+                <div class="stat-value">{{ total }}</div>
+            </div>
+            <div class="stat-card genuine">
+                <div class="stat-label">Genuine</div>
+                <div class="stat-value">{{ genuine }}</div>
+            </div>
+            <div class="stat-card forged">
+                <div class="stat-label">Forged</div>
+                <div class="stat-value">{{ forged }}</div>
+            </div>
+            <div class="stat-card uncertain">
+                <div class="stat-label">Uncertain</div>
+                <div class="stat-value">{{ uncertain }}</div>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="chart-card">
+            <div class="chart-title">Result Distribution</div>
+            <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="chart-card">
+            <div class="chart-title">Verification Counts</div>
+            <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+        </div>
+
+        <!-- Line Chart -->
+        <div class="chart-card">
+            <div class="chart-title">Activity Over Time</div>
+            <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+        </div>
+
+        <!-- Distance Distribution -->
+        <div class="chart-card">
+            <div class="chart-title">Distance Distribution</div>
+            <div class="chart-wrap"><canvas id="distChart"></canvas></div>
+        </div>
+
+    </main>
+    </div>
+
+    <canvas id="aurora-canvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="{{ url_for('static', filename='colorbends.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>initColorBends(document.getElementById('aurora-canvas'));</script>
+
+    <script>
+        const genuine  = {{ genuine }};
+        const forged   = {{ forged }};
+        const uncertain= {{ uncertain }};
+        const d_low    = {{ d_low }};
+        const d_mid    = {{ d_mid }};
+        const d_high   = {{ d_high }};
+        const total    = {{ total }};
+
+        const C = { genuine:'#22C55E', forged:'#EF4444', uncertain:'#FACC15', primary:'#2563EB', accent:'#7C3AED', muted:'#9CA3AF', card:'#1F2937' };
+
+        const baseOpts = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#F9FAFB', font: { family: 'Inter', size: 13 }, padding: 16, usePointStyle: true } } }
+        };
+        const scaleOpts = {
+            y: { beginAtZero: true, ticks: { color: C.muted }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            x: { ticks: { color: C.muted }, grid: { color: 'transparent' } }
+        };
+
+        // Pie
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Genuine', 'Forged', 'Uncertain'],
+                datasets: [{ data: [genuine, forged, uncertain], backgroundColor: [C.genuine, C.forged, C.uncertain], borderColor: C.card, borderWidth: 2 }]
+            },
+            options: { ...baseOpts, plugins: { ...baseOpts.plugins, legend: { ...baseOpts.plugins.legend, position: 'bottom' } } }
+        });
+
+        // Bar
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Genuine', 'Forged', 'Uncertain'],
+                datasets: [{ label: 'Count', data: [genuine, forged, uncertain], backgroundColor: [C.genuine, C.forged, C.uncertain], borderRadius: 8, borderSkipped: false }]
+            },
+            options: { ...baseOpts, scales: scaleOpts }
+        });
+
+        // Line
+        const labels = Array.from({ length: total }, (_, i) => i + 1);
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{ label: 'Cumulative Checks', data: labels, borderColor: C.primary, backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: C.accent, pointRadius: 4 }]
+            },
+            options: { ...baseOpts, scales: scaleOpts }
+        });
+
+        // Distance
+        new Chart(document.getElementById('distChart'), {
+            type: 'bar',
+            data: {
+                labels: ['0.0–0.8 (Highly Similar)', '0.8–1.1 (Uncertain)', '>1.1 (Likely Forged)'],
+                datasets: [{ label: 'Count', data: [d_low, d_mid, d_high], backgroundColor: [C.genuine, C.uncertain, C.forged], borderRadius: 8, borderSkipped: false }]
+            },
+            options: { ...baseOpts, scales: scaleOpts }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History — AI Signature Verification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="nav-brand">AI Signature <span>Verification</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/compare" class="nav-link">Compare</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/history" class="nav-link active">History</a>
+            <a href="/analytics" class="nav-link">Analytics</a>
+        </div>
+        <a href="/compare" class="nav-cta">Get Started</a>
+    </nav>
+
+    <div id="page-content">
+    <main class="page-main">
+        <div class="page-header">
+            <h1>Verification <span>History</span></h1>
+            <p>Your past signature verification results.</p>
+        </div>
+
+        <div class="glass-card" style="max-width: 860px;">
+            {% if history %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Result</th>
+                        <th>Similarity Score</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in history|reverse %}
+                    <tr class="history-row {{ entry.status }}">
+                        <td class="history-num">{{ loop.index }}</td>
+                        <td>
+                            <span class="history-badge {{ entry.status }}">{{ entry.result }}</span>
+                        </td>
+                        <td class="history-score">
+                            {% if entry.distance != '-' %}{{ entry.distance }}{% else %}—{% endif %}
+                        </td>
+                        <td class="history-time">{{ entry.time }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="history-empty">
+                <div class="history-empty-icon">🕓</div>
+                <p>No verification history yet.</p>
+                <a href="/compare" class="btn-primary" style="margin-top:16px; display:inline-block;">Start Verifying</a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+    </div>
+
+    <canvas id="aurora-canvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="{{ url_for('static', filename='colorbends.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>initColorBends(document.getElementById('aurora-canvas'));</script>
+</body>
+</html>

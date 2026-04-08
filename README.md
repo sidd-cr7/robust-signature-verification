@@ -1,13 +1,3 @@
----
-title: Signature Verification
-emoji: 🔏
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # Robust Signature Verification System
 
 A deep learning–based document authentication system that verifies genuine vs forged signatures and detects adversarial manipulation attempts to ensure secure verification. 

@@ -28,26 +28,24 @@ def compare():
 def detect():
     return render_template('detect.html')
 
+@app.route('/history')
+def history_page():
+    return render_template('history.html', history=history)
+
 @app.route('/analytics')
 def analytics():
     total = len(history)
-    genuine_count  = sum(1 for h in history if h['status'] == 'genuine')
-    forged_count   = sum(1 for h in history if h['status'] == 'forged')
-    uncertain_count= sum(1 for h in history if h['status'] == 'uncertain' or h['status'] == 'adversarial')
+    genuine  = sum(1 for h in history if h['status'] == 'genuine')
+    forged   = sum(1 for h in history if h['status'] == 'forged')
+    uncertain= sum(1 for h in history if h['status'] in ('uncertain', 'adversarial'))
     distances = [h['distance'] for h in history if isinstance(h.get('distance'), (int, float))]
     d_low  = sum(1 for d in distances if d < 0.8)
     d_mid  = sum(1 for d in distances if 0.8 <= d <= 1.1)
     d_high = sum(1 for d in distances if d > 1.1)
-    times  = [h['time'] for h in history]
     return render_template('analytics.html',
-        total=total, genuine=genuine_count, forged=forged_count, uncertain=uncertain_count,
-        d_low=d_low, d_mid=d_mid, d_high=d_high, times=times,
-        history=history
+        total=total, genuine=genuine, forged=forged, uncertain=uncertain,
+        d_low=d_low, d_mid=d_mid, d_high=d_high, history=history
     )
-
-@app.route('/history')
-def history_page():
-    return render_template('history.html', history=history)
 
 @app.route('/verify', methods=['POST'])
 def verify():
@@ -139,6 +137,4 @@ def favicon():
     return '', 204
 
 if __name__ == '__main__':
-    import os
-    port = int(os.environ.get('PORT', 7860))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True, port=5000)
