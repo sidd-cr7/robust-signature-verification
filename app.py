@@ -1,16 +1,20 @@
 from flask import Flask, render_template, request, jsonify
 import os, sys
 from pathlib import Path
+from datetime import datetime
 from utils import predict_image
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+history = []
 
 @app.route('/')
 def index():
@@ -24,6 +28,27 @@ def compare():
 def detect():
     return render_template('detect.html')
 
+@app.route('/analytics')
+def analytics():
+    total = len(history)
+    genuine_count  = sum(1 for h in history if h['status'] == 'genuine')
+    forged_count   = sum(1 for h in history if h['status'] == 'forged')
+    uncertain_count= sum(1 for h in history if h['status'] == 'uncertain' or h['status'] == 'adversarial')
+    distances = [h['distance'] for h in history if isinstance(h.get('distance'), (int, float))]
+    d_low  = sum(1 for d in distances if d < 0.8)
+    d_mid  = sum(1 for d in distances if 0.8 <= d <= 1.1)
+    d_high = sum(1 for d in distances if d > 1.1)
+    times  = [h['time'] for h in history]
+    return render_template('analytics.html',
+        total=total, genuine=genuine_count, forged=forged_count, uncertain=uncertain_count,
+        d_low=d_low, d_mid=d_mid, d_high=d_high, times=times,
+        history=history
+    )
+
+@app.route('/history')
+def history_page():
+    return render_template('history.html', history=history)
+
 @app.route('/verify', methods=['POST'])
 def verify():
     if 'image' not in request.files:
@@ -35,6 +60,12 @@ def verify():
     file.save(filepath)
     result = predict_image(filepath)
     os.remove(filepath)
+    history.append({
+        'result': result.get('message', result.get('status', '')),
+        'status': result.get('status', ''),
+        'distance': result.get('distance', '-'),
+        'time': datetime.now().strftime('%d %b %Y, %H:%M')
+    })
     return jsonify(result)
 
 @app.route('/verify-siamese', methods=['POST'])
@@ -87,6 +118,12 @@ def verify_siamese():
         else:
             status, message = 'uncertain', 'Uncertain — needs manual verification'
 
+        history.append({
+            'result': message,
+            'status': status,
+            'distance': round(dist, 2),
+            'time': datetime.now().strftime('%d %b %Y, %H:%M')
+        })
         return jsonify({'status': status, 'result': message, 'distance': round(dist, 2)})
 
     except Exception as e:
@@ -96,6 +133,10 @@ def verify_siamese():
     finally:
         if os.path.exists(path1): os.remove(path1)
         if os.path.exists(path2): os.remove(path2)
+
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
 
 if __name__ == '__main__':
     import os
