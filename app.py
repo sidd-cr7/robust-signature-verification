@@ -132,6 +132,33 @@ def verify_siamese():
         if os.path.exists(path1): os.remove(path1)
         if os.path.exists(path2): os.remove(path2)
 
+@app.route('/camera')
+def camera():
+    return render_template('camera.html')
+
+@app.route('/camera-detect', methods=['POST'])
+def camera_detect():
+    import base64
+    from PIL import Image
+    import io
+    data = request.get_json()
+    if not data or 'image' not in data:
+        return jsonify({'error': 'No image data'}), 400
+    img_data = data['image'].split(',')[1]
+    img_bytes = base64.b64decode(img_data)
+    img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
+    tmp_path = os.path.join(app.config['UPLOAD_FOLDER'], 'camera_capture.jpg')
+    img.save(tmp_path)
+    result = predict_image(tmp_path)
+    os.remove(tmp_path)
+    history.append({
+        'result': result.get('message', result.get('status', '')),
+        'status': result.get('status', ''),
+        'distance': result.get('distance', '-'),
+        'time': datetime.now().strftime('%d %b %Y, %H:%M')
+    })
+    return jsonify(result)
+
 @app.route('/favicon.ico')
 def favicon():
     return '', 204

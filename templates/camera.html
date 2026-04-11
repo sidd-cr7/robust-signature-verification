@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera — AI Signature Verification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="nav-brand">AI Signature <span>Verification</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/compare" class="nav-link">Compare</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/history" class="nav-link">History</a>
+            <a href="/analytics" class="nav-link">Analytics</a>
+            <a href="/camera" class="nav-link active">Camera</a>
+        </div>
+        <a href="/compare" class="nav-cta">Get Started</a>
+    </nav>
+
+    <div id="page-content">
+    <main class="page-main">
+        <div class="page-header">
+            <h1>Camera <span>Capture</span></h1>
+            <p>Point your camera at a signature, capture it, and verify instantly.</p>
+        </div>
+
+        <div class="glass-card camera-wrap">
+
+            <!-- Live feed -->
+            <div class="video-container" id="videoContainer">
+                <video id="cameraFeed" autoplay playsinline></video>
+                <canvas id="cameraCanvas"></canvas>
+                <div class="camera-denied hidden" id="deniedMsg">
+                    <div class="denied-icon">📷</div>
+                    <p>Camera access denied.<br>Please allow camera permissions and reload.</p>
+                </div>
+            </div>
+
+            <!-- Capture button -->
+            <button id="captureBtn" class="capture-btn" disabled>Capture &amp; Verify</button>
+
+            <!-- Loader -->
+            <div id="loader" class="loader hidden">
+                <div class="loading">
+                    <svg viewBox="0 0 187.3 93.7" height="70px" width="130px" class="svgbox">
+                        <defs>
+                            <linearGradient y2="0%" x2="100%" y1="0%" x1="0%" id="lgradCam">
+                                <stop stop-color="#7C3AED" offset="0%"></stop>
+                                <stop stop-color="#2563EB" offset="100%"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path stroke="url(#lgradCam)" d="M93.9,46.4c9.3,9.5,13.8,17.9,23.5,17.9s17.5-7.8,17.5-17.5s-7.8-17.6-17.5-17.5c-9.7,0.1-13.3,7.2-22.1,17.1c-8.9,8.8-15.7,17.9-25.4,17.9s-17.5-7.8-17.5-17.5s7.8-17.5,17.5-17.5S86.2,38.6,93.9,46.4z"></path>
+                    </svg>
+                </div>
+                <p>Analyzing signature...</p>
+            </div>
+
+            <!-- Captured preview -->
+            <div id="capturedPreview" class="captured-preview hidden">
+                <img id="capturedImg" alt="Captured signature">
+            </div>
+
+            <!-- Result -->
+            <div id="result" class="result hidden">
+                <div id="resultBadge" class="result-badge"></div>
+                <div id="resultIcon" class="result-icon"></div>
+                <h2 id="resultTitle"></h2>
+                <p id="resultExplanation"></p>
+                <div id="scoreSection" class="score-section hidden">
+                    <div class="score-row">
+                        <span class="score-label">Similarity Score</span>
+                        <span id="scoreValue" class="score-value"></span>
+                    </div>
+                    <div class="confidence-bar-bg">
+                        <div id="confidenceBar" class="confidence-bar"></div>
+                    </div>
+                    <div class="bar-labels"><span>Low</span><span>Confidence Level</span><span>High</span></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    </div>
+
+    <canvas id="aurora-canvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="{{ url_for('static', filename='colorbends.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>initColorBends(document.getElementById('aurora-canvas'));</script>
+
+    <script>
+        const video      = document.getElementById('cameraFeed');
+        const canvas     = document.getElementById('cameraCanvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const loader     = document.getElementById('loader');
+        const result     = document.getElementById('result');
+        const preview    = document.getElementById('capturedPreview');
+        const capturedImg= document.getElementById('capturedImg');
+        const deniedMsg  = document.getElementById('deniedMsg');
+
+        const RESULT_MAP = {
+            genuine:     { icon: '✓', label: 'Genuine Signature',           explanation: 'The signature appears authentic based on learned features.' },
+            forged:      { icon: '✗', label: 'Forged Signature',            explanation: 'The signature shows signs of forgery.' },
+            uncertain:   { icon: '⚠', label: 'Uncertain',                   explanation: 'Could not determine with confidence. Manual review recommended.' },
+            adversarial: { icon: '⚠', label: 'Adversarial Attack Detected', explanation: 'The image may contain adversarial manipulation.' },
+        };
+
+        // Start camera
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .catch(() => navigator.mediaDevices.getUserMedia({ video: true }))
+            .then(stream => {
+                video.srcObject = stream;
+                captureBtn.disabled = false;
+            })
+            .catch(() => {
+                video.classList.add('hidden');
+                deniedMsg.classList.remove('hidden');
+            });
+
+        captureBtn.addEventListener('click', async () => {
+            // Draw frame to canvas
+            canvas.width  = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const base64 = canvas.toDataURL('image/jpeg', 0.9);
+
+            // Show preview
+            capturedImg.src = base64;
+            preview.classList.remove('hidden');
+            result.classList.add('hidden');
+            loader.classList.remove('hidden');
+            captureBtn.disabled = true;
+
+            try {
+                const res  = await fetch('/camera-detect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64 })
+                });
+                const data = await res.json();
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    showResult(data);
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            } finally {
+                loader.classList.add('hidden');
+                captureBtn.disabled = false;
+            }
+        });
+
+        function showResult(data) {
+            const entry = RESULT_MAP[data.status] || { icon: '?', label: data.message || 'Unknown', explanation: '' };
+            result.className = 'result ' + (data.status || '');
+            document.getElementById('resultBadge').textContent      = (data.status || '').toUpperCase();
+            document.getElementById('resultIcon').textContent        = entry.icon;
+            document.getElementById('resultTitle').textContent       = entry.label;
+            document.getElementById('resultExplanation').textContent = entry.explanation;
+
+            const scoreSection = document.getElementById('scoreSection');
+            if (data.distance !== undefined && data.distance !== '-') {
+                const dist       = parseFloat(data.distance);
+                const confidence = Math.max(0, Math.min(100, Math.round((1 - dist / 2.0) * 100)));
+                document.getElementById('scoreValue').textContent    = dist.toFixed(2);
+                document.getElementById('confidenceBar').style.width = confidence + '%';
+                scoreSection.classList.remove('hidden');
+            } else {
+                scoreSection.classList.add('hidden');
+            }
+            result.classList.remove('hidden');
+        }
+    </script>
+
+</body>
+</html>
