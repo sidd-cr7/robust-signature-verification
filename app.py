@@ -138,26 +138,74 @@ def camera():
 
 @app.route('/camera-detect', methods=['POST'])
 def camera_detect():
-    import base64
+    import base64, io
     from PIL import Image
-    import io
-    data = request.get_json()
-    if not data or 'image' not in data:
-        return jsonify({'error': 'No image data'}), 400
-    img_data = data['image'].split(',')[1]
-    img_bytes = base64.b64decode(img_data)
-    img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
-    tmp_path = os.path.join(app.config['UPLOAD_FOLDER'], 'camera_capture.jpg')
-    img.save(tmp_path)
-    result = predict_image(tmp_path)
-    os.remove(tmp_path)
-    history.append({
-        'result': result.get('message', result.get('status', '')),
-        'status': result.get('status', ''),
-        'distance': result.get('distance', '-'),
-        'time': datetime.now().strftime('%d %b %Y, %H:%M')
-    })
-    return jsonify(result)
+
+    if 'reference' not in request.files or 'captured' not in request.json.get('captured', '') if request.is_json else True:
+        pass
+
+    # Accept multipart: reference file + captured base64
+    if 'reference' not in request.files:
+        return jsonify({'error': 'Reference image required'}), 400
+
+    data = request.form.get('captured')
+    if not data:
+        return jsonify({'error': 'Captured image required'}), 400
+
+    # Save reference
+    ref_file = request.files['reference']
+    path_ref = os.path.join(app.config['UPLOAD_FOLDER'], 'cam_ref_' + ref_file.filename)
+    ref_file.save(path_ref)
+
+    # Decode captured base64
+    img_bytes = base64.b64decode(data.split(',')[1])
+    path_cap  = os.path.join(app.config['UPLOAD_FOLDER'], 'cam_capture.jpg')
+    Image.open(io.BytesIO(img_bytes)).convert('RGB').save(path_cap)
+
+    try:
+        from verification.siamese_train import SiameseNetwork
+        import torch
+        from torchvision import transforms
+
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        model  = SiameseNetwork().to(device)
+        model.load_state_dict(torch.load(str(ROOT / 'siamese_model.pth'), map_location=device))
+        model.eval()
+
+        transform = transforms.Compose([
+            transforms.Grayscale(num_output_channels=3),
+            transforms.Resize((105, 105)),
+            transforms.ToTensor()
+        ])
+
+        def load(p):
+            return transform(Image.open(p).convert('RGB')).unsqueeze(0).to(device)
+
+        with torch.no_grad():
+            out1, out2 = model(load(path_ref), load(path_cap))
+            dist = torch.nn.functional.pairwise_distance(out1, out2).item()
+
+        if dist < 0.95:
+            status, message = 'genuine', 'Genuine Signature'
+        elif dist > 1.1:
+            status, message = 'forged', 'Forged Signature'
+        else:
+            status, message = 'uncertain', 'Uncertain — needs manual verification'
+
+        history.append({
+            'result': message, 'status': status,
+            'distance': round(dist, 2),
+            'time': datetime.now().strftime('%d %b %Y, %H:%M')
+        })
+        return jsonify({'status': status, 'result': message, 'distance': round(dist, 2)})
+
+    except Exception as e:
+        import traceback
+        return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
+
+    finally:
+        for p in [path_ref, path_cap]:
+            if os.path.exists(p): os.remove(p)
 
 @app.route('/favicon.ico')
 def favicon():
