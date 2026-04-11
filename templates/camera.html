@@ -95,90 +95,98 @@
     <script>initColorBends(document.getElementById('aurora-canvas'));</script>
 
     <script>
-        const video      = document.getElementById('cameraFeed');
-        const canvas     = document.getElementById('cameraCanvas');
-        const captureBtn = document.getElementById('captureBtn');
-        const loader     = document.getElementById('loader');
-        const result     = document.getElementById('result');
-        const preview    = document.getElementById('capturedPreview');
-        const capturedImg= document.getElementById('capturedImg');
-        const deniedMsg  = document.getElementById('deniedMsg');
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Camera script running');
 
-        const RESULT_MAP = {
-            genuine:     { icon: '✓', label: 'Genuine Signature',           explanation: 'The signature appears authentic based on learned features.' },
-            forged:      { icon: '✗', label: 'Forged Signature',            explanation: 'The signature shows signs of forgery.' },
-            uncertain:   { icon: '⚠', label: 'Uncertain',                   explanation: 'Could not determine with confidence. Manual review recommended.' },
-            adversarial: { icon: '⚠', label: 'Adversarial Attack Detected', explanation: 'The image may contain adversarial manipulation.' },
-        };
+            const video      = document.getElementById('cameraFeed');
+            const canvas     = document.getElementById('cameraCanvas');
+            const captureBtn = document.getElementById('captureBtn');
+            const loader     = document.getElementById('loader');
+            const result     = document.getElementById('result');
+            const preview    = document.getElementById('capturedPreview');
+            const capturedImg= document.getElementById('capturedImg');
+            const deniedMsg  = document.getElementById('deniedMsg');
 
-        // Start camera — laptop-safe: no facingMode constraint
-        async function startCamera() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                video.srcObject = stream;
-                video.onloadedmetadata = () => {
+            console.log('Video element:', video);
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                deniedMsg.classList.remove('hidden');
+                console.error('getUserMedia not supported');
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                .then(function (stream) {
+                    console.log('Camera stream obtained');
+                    video.srcObject = stream;
                     video.play();
                     captureBtn.disabled = false;
-                };
-            } catch (err) {
-                video.classList.add('hidden');
-                deniedMsg.classList.remove('hidden');
-            }
-        }
-        startCamera();
-
-        captureBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            if (video.videoWidth === 0) return;
-
-            canvas.width  = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            const base64 = canvas.toDataURL('image/jpeg', 0.9);
-
-            capturedImg.src = base64;
-            preview.classList.remove('hidden');
-            result.classList.add('hidden');
-            loader.classList.remove('hidden');
-            captureBtn.disabled = true;
-
-            try {
-                const res  = await fetch('/camera-detect', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: base64 })
+                })
+                .catch(function (err) {
+                    console.error('Camera access error:', err);
+                    video.classList.add('hidden');
+                    deniedMsg.classList.remove('hidden');
                 });
-                const data = await res.json();
-                if (data.error) alert('Error: ' + data.error);
-                else showResult(data);
-            } catch (err) {
-                alert('Error: ' + err.message);
-            } finally {
-                loader.classList.add('hidden');
-                captureBtn.disabled = false;
+
+            const RESULT_MAP = {
+                genuine:     { icon: '\u2713', label: 'Genuine Signature',           explanation: 'The signature appears authentic based on learned features.' },
+                forged:      { icon: '\u2717', label: 'Forged Signature',            explanation: 'The signature shows signs of forgery.' },
+                uncertain:   { icon: '\u26a0', label: 'Uncertain',                   explanation: 'Could not determine with confidence. Manual review recommended.' },
+                adversarial: { icon: '\u26a0', label: 'Adversarial Attack Detected', explanation: 'The image may contain adversarial manipulation.' },
+            };
+
+            captureBtn.addEventListener('click', async function () {
+                if (!video.videoWidth) return;
+
+                canvas.width  = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const base64 = canvas.toDataURL('image/jpeg', 0.9);
+
+                capturedImg.src = base64;
+                preview.classList.remove('hidden');
+                result.classList.add('hidden');
+                loader.classList.remove('hidden');
+                captureBtn.disabled = true;
+
+                try {
+                    const res  = await fetch('/camera-detect', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: base64 })
+                    });
+                    const data = await res.json();
+                    if (data.error) alert('Error: ' + data.error);
+                    else showResult(data);
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                } finally {
+                    loader.classList.add('hidden');
+                    captureBtn.disabled = false;
+                }
+            });
+
+            function showResult(data) {
+                const entry = RESULT_MAP[data.status] || { icon: '?', label: data.message || 'Unknown', explanation: '' };
+                result.className = 'result ' + (data.status || '');
+                document.getElementById('resultBadge').textContent      = (data.status || '').toUpperCase();
+                document.getElementById('resultIcon').textContent        = entry.icon;
+                document.getElementById('resultTitle').textContent       = entry.label;
+                document.getElementById('resultExplanation').textContent = entry.explanation;
+
+                const scoreSection = document.getElementById('scoreSection');
+                if (data.distance !== undefined && data.distance !== '-') {
+                    const dist       = parseFloat(data.distance);
+                    const confidence = Math.max(0, Math.min(100, Math.round((1 - dist / 2.0) * 100)));
+                    document.getElementById('scoreValue').textContent    = dist.toFixed(2);
+                    document.getElementById('confidenceBar').style.width = confidence + '%';
+                    scoreSection.classList.remove('hidden');
+                } else {
+                    scoreSection.classList.add('hidden');
+                }
+                result.classList.remove('hidden');
             }
         });
-
-        function showResult(data) {
-            const entry = RESULT_MAP[data.status] || { icon: '?', label: data.message || 'Unknown', explanation: '' };
-            result.className = 'result ' + (data.status || '');
-            document.getElementById('resultBadge').textContent      = (data.status || '').toUpperCase();
-            document.getElementById('resultIcon').textContent        = entry.icon;
-            document.getElementById('resultTitle').textContent       = entry.label;
-            document.getElementById('resultExplanation').textContent = entry.explanation;
-
-            const scoreSection = document.getElementById('scoreSection');
-            if (data.distance !== undefined && data.distance !== '-') {
-                const dist       = parseFloat(data.distance);
-                const confidence = Math.max(0, Math.min(100, Math.round((1 - dist / 2.0) * 100)));
-                document.getElementById('scoreValue').textContent    = dist.toFixed(2);
-                document.getElementById('confidenceBar').style.width = confidence + '%';
-                scoreSection.classList.remove('hidden');
-            } else {
-                scoreSection.classList.add('hidden');
-            }
-            result.classList.remove('hidden');
-        }
     </script>
 
 </body>
