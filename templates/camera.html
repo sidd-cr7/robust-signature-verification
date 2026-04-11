@@ -34,7 +34,7 @@
 
             <!-- Live feed -->
             <div class="video-container" id="videoContainer">
-                <video id="cameraFeed" autoplay playsinline></video>
+                <video id="cameraFeed" autoplay playsinline muted></video>
                 <canvas id="cameraCanvas"></canvas>
                 <div class="camera-denied hidden" id="deniedMsg">
                     <div class="denied-icon">📷</div>
@@ -111,26 +111,31 @@
             adversarial: { icon: '⚠', label: 'Adversarial Attack Detected', explanation: 'The image may contain adversarial manipulation.' },
         };
 
-        // Start camera
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-            .catch(() => navigator.mediaDevices.getUserMedia({ video: true }))
-            .then(stream => {
+        // Start camera — laptop-safe: no facingMode constraint
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 video.srcObject = stream;
-                captureBtn.disabled = false;
-            })
-            .catch(() => {
+                video.onloadedmetadata = () => {
+                    video.play();
+                    captureBtn.disabled = false;
+                };
+            } catch (err) {
                 video.classList.add('hidden');
                 deniedMsg.classList.remove('hidden');
-            });
+            }
+        }
+        startCamera();
 
-        captureBtn.addEventListener('click', async () => {
-            // Draw frame to canvas
+        captureBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (video.videoWidth === 0) return;
+
             canvas.width  = video.videoWidth;
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
             const base64 = canvas.toDataURL('image/jpeg', 0.9);
 
-            // Show preview
             capturedImg.src = base64;
             preview.classList.remove('hidden');
             result.classList.add('hidden');
@@ -144,11 +149,8 @@
                     body: JSON.stringify({ image: base64 })
                 });
                 const data = await res.json();
-                if (data.error) {
-                    alert('Error: ' + data.error);
-                } else {
-                    showResult(data);
-                }
+                if (data.error) alert('Error: ' + data.error);
+                else showResult(data);
             } catch (err) {
                 alert('Error: ' + err.message);
             } finally {
