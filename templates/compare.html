@@ -10,7 +10,6 @@
 </head>
 <body>
 
-    <!-- Navbar -->
     <nav class="navbar">
         <a href="/" class="nav-brand">AI Signature <span>Verification</span></a>
         <div class="nav-links">
@@ -20,6 +19,14 @@
             <a href="/history" class="nav-link">History</a>
             <a href="/analytics" class="nav-link">Analytics</a>
             <a href="/camera" class="nav-link">Camera</a>
+        </div>
+        <a href="/compare" class="nav-cta">Get Started</a>
+    </nav>
+
+    <div id="page-content">
+    <main class="page-main">
+        <div class="page-header">
+            <h1>Compare <span>Signatures</span></h1>
             <p>Upload two signatures to check if they match using our Siamese Neural Network.</p>
         </div>
 
@@ -94,9 +101,7 @@
             </div>
         </div>
     </main>
-
-    </main>
-    </div><!-- end #page-content -->
+    </div>
 
     <canvas id="aurora-canvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
